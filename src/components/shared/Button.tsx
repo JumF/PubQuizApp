@@ -1,10 +1,25 @@
 import React from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'danger' | 'success';
+  variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'blue' | 'gradient';
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
 }
+
+const variantClasses = {
+  primary: 'bg-robot-orange hover:bg-robot-orange-dark text-white shadow-robot hover:shadow-robot-lg',
+  secondary: 'bg-white hover:bg-robot-gray border-2 border-robot-black text-robot-black hover:bg-robot-gray-dark',
+  danger: 'bg-red-500 hover:bg-red-600 text-white shadow-robot',
+  success: 'bg-green-500 hover:bg-green-600 text-white shadow-robot',
+  blue: 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40',
+  gradient: 'bg-gradient-to-r from-blue-600 to-orange-600 hover:from-blue-700 hover:to-orange-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-orange-500/40',
+};
+
+const sizeClasses = {
+  sm: 'px-4 py-2 text-sm',
+  md: 'px-6 py-3 text-base',
+  lg: 'px-8 py-4 text-lg',
+};
 
 export const Button: React.FC<ButtonProps> = ({
   children,
@@ -15,103 +30,17 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const getSizeStyles = () => {
-    switch (size) {
-      case 'sm':
-        return { padding: '8px 16px', fontSize: '13px' };
-      case 'lg':
-        return { padding: '16px 32px', fontSize: '18px' };
-      case 'md':
-      default:
-        return { padding: '12px 24px', fontSize: '15px' };
-    }
-  };
-
-  const getVariantStyles = () => {
-    const baseStyle = {
-      fontWeight: '700',
-      borderRadius: '16px',
-      border: 'none',
-      cursor: disabled ? 'not-allowed' : 'pointer',
-      transition: 'all 0.3s ease',
-      opacity: disabled ? 0.6 : 1,
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '8px',
-      fontFamily: 'Chakra Petch, sans-serif',
-      ...getSizeStyles(),
-    };
-
-    switch (variant) {
-      case 'primary':
-        return {
-          ...baseStyle,
-          background: 'linear-gradient(135deg, #FF6B35 0%, #E55A2B 100%)',
-          color: 'white',
-          boxShadow: '0 10px 30px rgba(255, 107, 53, 0.3)',
-          ':hover': { boxShadow: '0 15px 40px rgba(255, 107, 53, 0.4)' }
-        };
-      case 'secondary':
-        return {
-          ...baseStyle,
-          background: 'rgba(255, 255, 255, 0.1)',
-          border: '2px solid rgba(255, 255, 255, 0.2)',
-          color: 'white',
-          backdropFilter: 'blur(10px)',
-          ':hover': { background: 'rgba(255, 255, 255, 0.15)' }
-        };
-      case 'danger':
-        return {
-          ...baseStyle,
-          background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
-          color: 'white',
-          boxShadow: '0 10px 30px rgba(239, 68, 68, 0.3)',
-          ':hover': { boxShadow: '0 15px 40px rgba(239, 68, 68, 0.4)' }
-        };
-      case 'success':
-        return {
-          ...baseStyle,
-          background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-          color: 'white',
-          boxShadow: '0 10px 30px rgba(16, 185, 129, 0.3)',
-          ':hover': { boxShadow: '0 15px 40px rgba(16, 185, 129, 0.4)' }
-        };
-      default:
-        return baseStyle;
-    }
-  };
-
   return (
     <button
-      style={{
-        ...getVariantStyles(),
-        width: fullWidth ? '100%' : 'auto',
-      }}
+      className={`
+        ${variantClasses[variant]}
+        ${sizeClasses[size]}
+        ${fullWidth ? 'w-full' : ''}
+        ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+        font-semibold rounded-xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]
+        ${className}
+      `}
       disabled={disabled}
-      onMouseEnter={(e) => {
-        if (!disabled) {
-          (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)';
-          // Apply hover box shadow from getVariantStyles directly, if defined
-          const hoverShadow = getVariantStyles()[':hover']?.boxShadow;
-          if (hoverShadow) {
-            (e.currentTarget as HTMLElement).style.boxShadow = hoverShadow;
-          }
-          const hoverBackground = getVariantStyles()[':hover']?.background;
-          if (hoverBackground) {
-            (e.currentTarget as HTMLElement).style.background = hoverBackground;
-          }
-        }
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
-        if (!disabled) {
-          // Revert to original box shadow
-          (e.currentTarget as HTMLElement).style.boxShadow = getVariantStyles().boxShadow;
-          (e.currentTarget as HTMLElement).style.background = getVariantStyles().background;
-        }
-      }}
-      className={className}
       {...props}
     >
       {children}

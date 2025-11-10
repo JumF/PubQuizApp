@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '../shared/Button';
 import { Loading } from '../shared/Loading';
 import type { Quiz, Round, Question } from '../../types';
-import { 
-  getQuiz, 
-  createQuiz, 
-  updateQuiz, 
-  getRounds, 
+import {
+  getQuiz,
+  createQuiz,
+  updateQuiz,
+  getRounds,
   createRound,
   getQuestions,
   createQuestion,
@@ -44,7 +44,7 @@ export const QuizEditorComponent: React.FC<QuizEditorProps> = ({ quizId, onSave,
 
   const loadQuiz = async () => {
     if (!quizId) return;
-    
+
     setLoading(true);
     try {
       const quizData = await getQuiz(quizId);
@@ -191,7 +191,7 @@ export const QuizEditorComponent: React.FC<QuizEditorProps> = ({ quizId, onSave,
             Er worden automatisch 5 rondes aangemaakt met elk ruimte voor 10 vragen.
           </div>
           <div className="flex gap-4">
-            <Button variant="blue" onClick={handleCreateQuiz} disabled={saving}>
+            <Button variant="primary" onClick={handleCreateQuiz} disabled={saving}>
               {saving ? 'Aanmaken...' : 'Quiz Aanmaken'}
             </Button>
             <Button variant="secondary" onClick={onCancel}>
@@ -216,7 +216,7 @@ export const QuizEditorComponent: React.FC<QuizEditorProps> = ({ quizId, onSave,
             onChange={(e) => setQuizName(e.target.value)}
             className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 text-gray-900 transition-all duration-200"
           />
-          <Button variant="blue" onClick={handleUpdateQuizName} disabled={saving}>
+          <Button variant="primary" onClick={handleUpdateQuizName} disabled={saving}>
             Naam Opslaan
           </Button>
         </div>
@@ -251,7 +251,7 @@ export const QuizEditorComponent: React.FC<QuizEditorProps> = ({ quizId, onSave,
             <h3 className="text-xl font-bold text-gray-900">
               Vragen voor {rounds[selectedRound]?.name}
             </h3>
-            <Button variant="blue" onClick={handleAddQuestion}>+ Vraag Toevoegen</Button>
+            <Button variant="primary" onClick={handleAddQuestion}>+ Vraag Toevoegen</Button>
           </div>
 
           {questions.length === 0 ? (

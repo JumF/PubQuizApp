@@ -1,32 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '../components/shared/Layout';
 import { Button } from '../components/shared/Button';
 import { Loading } from '../components/shared/Loading';
-import type { Quiz } from '../types';
-import { getAllQuizzes } from '../services/quizService';
+import { getAllQuizzes } from '../services/quizService'; // Corrected import
 import { createSession } from '../services/sessionService';
+import type { Quiz } from '../types'; // Assuming Quiz type has roundCount and questionsPerRound
 
 export const SessionStarter: React.FC = () => {
   const navigate = useNavigate();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [selectedQuizId, setSelectedQuizId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState(false);
-  const [selectedQuizId, setSelectedQuizId] = useState<string>('');
   const [timerDuration, setTimerDuration] = useState(30);
   const [autoClose, setAutoClose] = useState(true);
+  const [session, setSession] = useState<any>(null);
+  const [startingSession, setStartingSession] = useState(false);
 
   useEffect(() => {
     loadQuizzes();
   }, []);
 
   const loadQuizzes = async () => {
-    setLoading(true);
     try {
-      const data = await getAllQuizzes();
-      setQuizzes(data);
-      if (data.length > 0) {
-        setSelectedQuizId(data[0].id);
+      const fetchedQuizzes = await getAllQuizzes(); // Corrected function call
+      setQuizzes(fetchedQuizzes);
+      if (fetchedQuizzes.length > 0) {
+        setSelectedQuizId(fetchedQuizzes[0].id);
       }
     } catch (error) {
       console.error('Error loading quizzes:', error);
@@ -35,27 +35,28 @@ export const SessionStarter: React.FC = () => {
     }
   };
 
-  const handleCreateSession = async () => {
+  const handleStartSession = async () => {
     if (!selectedQuizId) {
       alert('Selecteer een quiz');
       return;
     }
 
-    setCreating(true);
+    setStartingSession(true);
     try {
       const sessionId = await createSession(selectedQuizId, timerDuration, autoClose);
-      navigate(`/quizmaster/${sessionId}`);
+      setSession(sessionId);
+      navigate(`/quizmaster/${sessionId}`); // Navigate after session is set
     } catch (error: any) {
-      console.error('Error creating session:', error);
+      console.error('Error starting session:', error);
       const errorMessage = error?.message || 'Onbekende fout';
-      alert(`Fout bij aanmaken van sessie: ${errorMessage}`);
+      alert(`Fout bij starten van sessie: ${errorMessage}`);
     } finally {
-      setCreating(false);
+      setStartingSession(false);
     }
   };
 
   if (loading) {
-    return <LoadingScreen text="Quizzen laden..." />;
+    return <Loading text="Quizzen laden..." />;
   }
 
   return (
@@ -69,7 +70,7 @@ export const SessionStarter: React.FC = () => {
           <p className="text-gray-700 font-medium mb-4">
             Er zijn nog geen quizzen beschikbaar.
           </p>
-          <Button variant="blue" onClick={() => navigate('/admin')}>
+          <Button variant="blue" onClick={() => navigate('/admin/quiz/new')}>
             Naar Admin Panel
           </Button>
         </div>
@@ -81,7 +82,7 @@ export const SessionStarter: React.FC = () => {
               Selecteer Quiz
             </label>
             <select
-              value={selectedQuizId}
+              value={selectedQuizId || ''}
               onChange={(e) => setSelectedQuizId(e.target.value)}
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 text-gray-900 font-medium transition-all duration-200"
             >
@@ -123,28 +124,45 @@ export const SessionStarter: React.FC = () => {
           </div>
 
           {/* Create Button */}
-          <div className="pt-4">
+          <div className="pt-4 flex gap-4 justify-end">
             <Button
-              variant="blue"
-              onClick={handleCreateSession}
-              disabled={creating}
-              fullWidth
-              size="lg"
+              onClick={() => navigate('/admin')}
+              variant="secondary"
             >
-              {creating ? 'Sessie Aanmaken...' : '🎮 Start Sessie'}
+              Terug naar Admin Panel
+            </Button>
+            <Button
+              onClick={handleStartSession}
+              disabled={!selectedQuizId || startingSession}
+              variant="blue"
+            >
+              Start Sessie
             </Button>
           </div>
+
+          {session && (
+            <div className="mt-8 bg-blue-100 rounded-2xl p-6 text-center border border-blue-200 shadow-lg">
+              <h3 className="text-2xl font-bold text-blue-800 mb-4">
+                Sessie gestart!
+              </h3>
+              <p className="text-blue-700 mb-2">
+                Deel deze code met je spelers:
+              </p>
+              <p className="text-4xl font-bold text-blue-600 tracking-wider mb-6">
+                {session.joinCode}
+              </p>
+              <Button
+                onClick={() => navigate(`/quizmaster/${session.id}`)}
+                variant="primary"
+                fullWidth
+              >
+                Naar Quizmaster Panel
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </Layout>
-  );
-};
-
-const LoadingScreen: React.FC<{ text?: string }> = ({ text }) => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <Loading text={text} size="lg" />
-    </div>
   );
 };
 

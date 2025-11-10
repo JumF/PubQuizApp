@@ -106,20 +106,22 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
 
           {/* Actions */}
           <div className="flex gap-3 pt-4 border-t border-gray-200">
-            <Button variant="blue" onClick={handleSave} size="sm">
+            <Button
+              onClick={handleSave}
+              disabled={!text.trim() || answers.some(a => !a.trim()) || correctIndex === null}
+              variant="primary"
+            >
               Opslaan
             </Button>
             <Button
-              variant="secondary"
-              size="sm"
               onClick={() => setIsExpanded(false)}
+              variant="secondary"
             >
               Annuleren
             </Button>
             <Button
-              variant="danger"
-              size="sm"
               onClick={onDelete}
+              variant="danger"
               className="ml-auto"
             >
               Verwijderen

@@ -103,88 +103,43 @@ export const QuizmasterView: React.FC = () => {
 
   return (
     <Layout title="🎮 Quizmaster Control" maxWidth="full">
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: window.innerWidth >= 1024 ? '2fr 1fr' : '1fr',
-        gap: '24px',
-        animation: 'fadeInUp 0.6s ease-out'
-      }}>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fadeInUp">
         {/* Main Control Panel */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="lg:col-span-2 flex flex-col gap-6">
           {/* Session Info */}
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(255, 107, 53, 0.9), rgba(255, 255, 255, 0.6))',
-            borderRadius: '24px',
-            padding: '28px',
-            border: '1px solid rgba(255, 107, 53, 0.5)',
-            boxShadow: '0 20px 40px rgba(255, 107, 53, 0.2)',
-            backdropFilter: 'blur(20px)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
-            <div style={{
-              position: 'absolute',
-              top: '-100px',
-              right: '-100px',
-              width: '250px',
-              height: '250px',
-              background: 'rgba(255, 255, 255, 0.2)',
-              borderRadius: '50%',
-              filter: 'blur(80px)'
-            }}></div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', position: 'relative', zIndex: 1 }}>
+          <div className="bg-blue-600 rounded-2xl shadow-xl p-6 border border-blue-800 relative overflow-hidden">
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-white opacity-10 rounded-full mix-blend-overlay filter blur-xl"></div>
+            <div className="flex justify-between items-start mb-4 relative z-10">
               <div>
-                <h2 style={{ fontSize: '32px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px', fontFamily: 'Orbitron, Chakra Petch' }}>{quiz.name}</h2>
-                <div style={{
-                  background: 'rgba(255, 255, 255, 0.15)',
-                  backdropFilter: 'blur(10px)',
-                  borderRadius: '16px',
-                  padding: '16px 24px',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  display: 'inline-block'
-                }}>
-                  <p style={{ color: 'rgba(26, 26, 26, 0.8)', fontSize: '12px', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Join Code</p>
-                  <p style={{ fontSize: '56px', fontWeight: '700', color: '#1A1A1A', fontFamily: 'monospace', letterSpacing: '4px' }}>{session.joinCode}</p>
+                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">{quiz.name}</h2>
+                <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl px-4 py-2 border border-white border-opacity-30 inline-block">
+                  <p className="text-sm font-semibold text-white opacity-80 mb-1">Join Code</p>
+                  <p className="text-4xl font-bold text-white tracking-wider">{session.joinCode}</p>
                 </div>
               </div>
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.15)',
-                backdropFilter: 'blur(10px)',
-                borderRadius: '16px',
-                padding: '12px 20px',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                textAlign: 'right'
-              }}>
-                <div style={{ fontSize: '12px', fontWeight: '600', color: 'rgba(26, 26, 26, 0.9)', marginBottom: '8px', textTransform: 'uppercase' }}>Status</div>
-                <div style={{
-                  fontSize: '18px',
-                  fontWeight: '700',
-                  color: session.status === 'waiting' ? '#FF6B35' : session.status === 'active' ? '#10B981' : '#64748B'
-                }}>
+              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl px-4 py-2 border border-white border-opacity-30 text-right">
+                <p className="text-sm font-semibold text-white opacity-80 mb-1">Status</p>
+                <p className={`text-xl font-bold ${
+                  session.status === 'waiting' ? 'text-yellow-300' :
+                  session.status === 'active' ? 'text-green-300' :
+                  'text-gray-300'
+                }`}>
                   {session.status === 'waiting' ? '🟡 Wachten' :
                    session.status === 'active' ? '🟢 Actief' : '⚪ Beëindigd'}
-                </div>
+                </p>
               </div>
             </div>
 
             {session.status === 'waiting' && (
-              <div style={{
-                background: 'rgba(30, 30, 30, 0.9)',
-                borderRadius: '16px',
-                padding: '20px',
-                marginTop: '20px',
-                border: '2px solid rgba(255, 107, 53, 0.4)',
-                position: 'relative',
-                zIndex: 1
-              }}>
-                <p style={{ color: 'rgba(255, 255, 255, 0.9)', marginBottom: '16px', fontWeight: '600', fontSize: '16px' }}>
+              <div className="mt-6 p-4 bg-blue-700 rounded-xl border border-blue-600 shadow-inner relative z-10">
+                <p className="text-white opacity-90 mb-4 text-lg font-semibold">
                   ⏳ Wachtend op spelers... ({players.length} speler{players.length !== 1 ? 's' : ''} gejoined)
                 </p>
                 <Button
                   variant="primary"
                   onClick={handleStartSession}
                   fullWidth
+                  size="lg"
                 >
                   ▶️ Start Quiz
                 </Button>
@@ -217,17 +172,12 @@ export const QuizmasterView: React.FC = () => {
 
           {/* End Session */}
           {session.status === 'active' && (
-            <div style={{
-              background: 'rgba(30, 30, 30, 0.8)',
-              borderRadius: '20px',
-              padding: '24px',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              boxShadow: '0 10px 30px rgba(239, 68, 68, 0.1)'
-            }}>
+            <div className="p-6 bg-red-600 rounded-2xl shadow-xl border border-red-700">
               <Button
                 variant="danger"
                 onClick={handleEndSession}
                 fullWidth
+                size="lg"
               >
                 ⏹️ Beëindig Quiz
               </Button>
@@ -236,9 +186,7 @@ export const QuizmasterView: React.FC = () => {
         </div>
 
         {/* Live Scoreboard */}
-        <div style={{
-          animation: 'slideInRight 0.6s ease-out'
-        }}>
+        <div className="lg:col-span-1 animate-slideInRight">
           <LiveScoreboard players={players} session={session} />
         </div>
       </div>
