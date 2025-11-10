@@ -1,0 +1,70 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    
+    // Quizzes - only admins can write
+    match /quizzes/{quizId} {
+      allow read: if true;  // Everyone can read quizzes
+      allow write: if isAdmin();
+      
+      // Rounds subcollection
+      match /rounds/{roundId} {
+        allow read: if true;
+        allow write: if isAdmin();
+        
+        // Questions subcollection
+        match /questions/{questionId} {
+          allow read: if true;
+          allow write: if isAdmin();
+        }
+      }
+    }
+    
+    // Sessions - anyone can read and create (for testing), admins can update/delete
+    match /sessions/{sessionId} {
+      allow read: if true;
+      allow create: if true;  // Allow anyone to create sessions for testing
+      allow update: if isAuthenticated();  // Allow authenticated users to update
+      allow delete: if isAdmin();
+    }
+    
+    // Players - can create themselves, can update own data
+    match /players/{playerId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if request.auth.uid == playerId || isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Answers - can create own answer, admins can read all
+    match /answers/{answerId} {
+      allow read: if true;
+      allow create: if true;  // Allow anyone to submit answers (with session validation client-side)
+      allow update: if false;  // No updates once submitted
+      allow delete: if isAdmin();
+    }
+    
+    // Statistics - admins can write, everyone can read
+    match /statistics/{questionId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // Admins collection - only readable by admins
+    match /admins/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if false;  // Set via Firebase Console only
+    }
+  }
+}
+
